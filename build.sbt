@@ -4,14 +4,7 @@ name := "akka-open-graph-fetcher"
 
 scalaVersion := "2.11.8"
 
-val specs2Ver = "3.7.3"
-
-libraryDependencies ++= Seq(
-  "org.specs2" %% "specs2-core"           % specs2Ver % Test,
-  "org.specs2" %% "specs2-matcher"        % specs2Ver % Test,
-  "org.specs2" %% "specs2-matcher-extra"  % specs2Ver % Test,
-  "org.specs2" %% "specs2-mock"           % specs2Ver % Test
-)
+libraryDependencies ++= Dependencies.dependencies
 
 javaOptions in Test ++= Seq(
   s"-Djava.util.Arrays.useLegacyMergeSort=true"
