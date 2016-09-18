@@ -1,4 +1,4 @@
-package com.github.tkqubo.akka_http_og_fetcher
+package com.github.tkqubo.akka_open_graph_fetcher
 
 import java.nio.charset.Charset
 
@@ -45,9 +45,11 @@ class OpenGraphParser(
 
   private def byteStringToDocument(data: ByteString, response: HttpResponse): Document = {
     val document: Document = Jsoup.parse(data.utf8String)
-    val maybeCharset: Option[Charset] = maybeCharsetFromDocumentMetaTag(document)
-      .orElse(maybeCharsetFromHttpResponseHeader(response))
-      .filter(_ != utf8)
+    val maybeCharset: Option[Charset] = (
+      maybeCharsetFromDocumentCharsetMetaTag(document) orElse
+      maybeCharsetFromDocumentHttpEquivMetaTag(document) orElse
+      maybeCharsetFromHttpResponseHeader(response)
+    ).filter(_ != utf8)
     maybeCharset
       .map(charset => Jsoup.parse(data.decodeString(charset)))
       .getOrElse(document)
@@ -62,7 +64,7 @@ class OpenGraphParser(
       error = Error.maybeFromStatusCode(response.status)
     )
 
-  private def maybeCharsetFromDocumentMetaTag(document: Document): Option[Charset] = {
+  private def maybeCharsetFromDocumentHttpEquivMetaTag(document: Document): Option[Charset] = {
     for {
       charsetStatement <- document
         .select("meta[http-equiv=Content-Type]")
@@ -74,6 +76,9 @@ class OpenGraphParser(
       charset <- charsetForNameOption(charsetName)
     } yield charset
   }
+
+  private def maybeCharsetFromDocumentCharsetMetaTag(document: Document): Option[Charset] =
+    charsetForNameOption(document.select("meta[charset]").attr("charset"))
 
   private def maybeCharsetFromHttpResponseHeader(response: HttpResponse): Option[Charset] =
     for {

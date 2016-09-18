@@ -1,4 +1,4 @@
-package com.github.tkqubo.akka_http_og_fetcher
+package com.github.tkqubo.akka_open_graph_fetcher
 
 import org.specs2.mutable.Specification
 import spray.json.DefaultJsonProtocol._
@@ -10,7 +10,7 @@ import spray.json._
   * sbt "test-only com.github.tkqubo.akka_http_og_fetcher.OpenGraphTest"
   * }}}
   */
-//noinspection ScalaStyle
+// scalastyle:off magic.number
 class OpenGraphTest extends Specification {
   "OpenGraph" should {
     "rootJsonFormat" should {

@@ -1,4 +1,4 @@
-package com.github.tkqubo.akka_http_og_fetcher
+package com.github.tkqubo.akka_open_graph_fetcher
 
 import akka.http.scaladsl.model.{StatusCode, StatusCodes}
 import spray.json.DefaultJsonProtocol._
