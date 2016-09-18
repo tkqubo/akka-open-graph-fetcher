@@ -14,11 +14,23 @@ import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 
+/**
+  * Parses `HttpResponse` into [[OpenGraph]] object
+  * @param toStrictDuration Duration for entity collection
+  */
 class OpenGraphParser(
-  toStrictDuration: FiniteDuration = OpenGraphParser.defaultToStrictDuration
+  val toStrictDuration: FiniteDuration = OpenGraphParser.defaultToStrictDuration
 ) {
   private val utf8: Charset = HttpCharsets.`UTF-8`.nioCharset()
 
+  /**
+    * Parses `HttpCharsets` into [[OpenGraph]] object
+    * @param request
+    * @param response
+    * @param ec
+    * @param materializer
+    * @return
+    */
   def parse(
     request: HttpRequest, response: HttpResponse
   )(implicit ec: ExecutionContext, materializer: ActorMaterializer): Future[OpenGraph] =
@@ -97,5 +109,6 @@ class OpenGraphParser(
 }
 
 object OpenGraphParser {
+  /** Default duration for [[OpenGraphParser.toStrictDuration]] */
   val defaultToStrictDuration: FiniteDuration = 3 seconds
 }

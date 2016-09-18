@@ -11,6 +11,14 @@ import com.github.tkqubo.akka_open_graph_fetcher.OpenGraphFetcher._
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future, TimeoutException}
 
+/**
+  * Fetches [[OpenGraph]] from the specified URL
+  * @param openGraphParser Parser for conversion from `HttpResponse` to [[OpenGraph]]
+  * @param requestTimeout Request timeout
+  * @param httpExt HTTP client
+  * @param scheduler
+  * @param materializer
+  */
 class OpenGraphFetcher(
   val openGraphParser: OpenGraphParser = new OpenGraphParser(),
   val requestTimeout: FiniteDuration = defaultRequestTimeout,
@@ -18,6 +26,13 @@ class OpenGraphFetcher(
 )(implicit scheduler: Scheduler, materializer: ActorMaterializer) {
   private val urlPattern = "^https?://.*".r
 
+  /**
+    * Fetches [[OpenGraph]] from the specified URL
+    * @param url URL to fetch
+    * @param headers Additinal `HttpHeader`s
+    * @param ec
+    * @return
+    */
   def fetch(
     url: String, headers: Iterable[HttpHeader] = Nil
   )(implicit ec: ExecutionContext): Future[OpenGraph] =
