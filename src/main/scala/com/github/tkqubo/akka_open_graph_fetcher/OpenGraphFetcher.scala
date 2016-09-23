@@ -2,6 +2,7 @@ package com.github.tkqubo.akka_open_graph_fetcher
 
 import akka.actor.{ActorSystem, Scheduler}
 import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.headers.Location
 import akka.http.scaladsl.{Http, HttpExt}
 import akka.pattern.after
 import akka.stream.ActorMaterializer
@@ -15,13 +16,13 @@ import scala.concurrent.{ExecutionContext, Future, TimeoutException}
   * Fetches [[OpenGraph]] from the specified URL
   * @param openGraphParser Parser for conversion from `HttpResponse` to [[OpenGraph]]
   * @param requestTimeout Request timeout
+  * @param maxRedirectionRetries Max trial for multiple redirection
   * @param httpExt HTTP client
-  * @param scheduler
-  * @param materializer
   */
 class OpenGraphFetcher(
   val openGraphParser: OpenGraphParser = new OpenGraphParser(),
   val requestTimeout: FiniteDuration = defaultRequestTimeout,
+  val maxRedirectionRetries: Int = defaultMaxRedirectionRetries,
   val httpExt: HttpExt
 )(implicit scheduler: Scheduler, materializer: ActorMaterializer) {
   private val urlPattern = "^https?://.*".r
@@ -48,12 +49,27 @@ class OpenGraphFetcher(
   private def fetchSuccess(request: HttpRequest)(implicit ec: ExecutionContext): Future[OpenGraph] =
     for {
       response <- Future.firstCompletedOf(
-        httpExt.singleRequest(request) ::
+        handleRequestWithRedirect(request, Set(request.uri)) ::
         requestTimeout(request) ::
         Nil
       )
       openGraph <- openGraphParser.parse(request, response)
     } yield openGraph
+
+  private def handleRequestWithRedirect(request: HttpRequest, triedUris: Set[Uri])(implicit ec: ExecutionContext): Future[HttpResponse] =
+    for {
+      response <- httpExt.singleRequest(request)
+      response <- if (triedUris.size < maxRedirectionRetries && response.status.isRedirection()) {
+        response.header[Location]
+          .map(_.uri)
+          .filterNot(triedUris.contains)
+          .map(uri => request.copy(uri = uri))
+          .map(redirectRequest => handleRequestWithRedirect(redirectRequest, triedUris + redirectRequest.uri))
+          .getOrElse(Future.successful(response))
+      } else {
+        Future.successful(response)
+      }
+    } yield response
 
   private def recoverFailure(url: String): PartialFunction[Throwable, OpenGraph] = {
     case e: Throwable => OpenGraph(url, error = Some(akka_open_graph_fetcher.Error.fromThrowable(e)))
@@ -67,11 +83,13 @@ class OpenGraphFetcher(
 object OpenGraphFetcher {
   def apply(
     openGraphParser: OpenGraphParser = new OpenGraphParser(),
-    requestTimeout: FiniteDuration = OpenGraphFetcher.defaultRequestTimeout
+    requestTimeout: FiniteDuration = defaultRequestTimeout,
+    maxRedirectionRetries: Int = defaultMaxRedirectionRetries
   )(implicit actorSystem: ActorSystem, materializer: ActorMaterializer): OpenGraphFetcher =
-    new OpenGraphFetcher(openGraphParser, requestTimeout, Http())(actorSystem.scheduler, materializer)
+    new OpenGraphFetcher(openGraphParser, requestTimeout, maxRedirectionRetries, Http())(actorSystem.scheduler, materializer)
 
   val defaultRequestTimeout: FiniteDuration = 3 seconds
+  val defaultMaxRedirectionRetries: Int = 3
 
   object ErrorMessage {
     def forInvalidUriScheme(): String = "HTTP URI scheme should be either http or https"
