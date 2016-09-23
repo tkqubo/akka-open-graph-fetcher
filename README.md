@@ -1,8 +1,9 @@
 # Akka Open Graph Fetcher
 
-[![License: MIT](http://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.tkqubo/akka-open-graph-fetcher_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.tkqubo/akka-open-graph-fetcher_2.11/)
 [![Circle CI](https://img.shields.io/circleci/project/tkqubo/akka-open-graph-fetcher/master.svg)](https://circleci.com/gh/tkqubo/akka-open-graph-fetcher)
 [![Coverage Status](https://coveralls.io/repos/tkqubo/akka-open-graph-fetcher/badge.svg?branch=master&service=github)](https://coveralls.io/github/tkqubo/akka-open-graph-fetcher?branch=master)
+[![License: MIT](http://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## About
 
