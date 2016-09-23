@@ -165,18 +165,18 @@
     </span>
       
     </li><li name="com.github.tkqubo.akka_open_graph_fetcher.OpenGraphFetcher#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="apply(openGraphParser:com.github.tkqubo.akka_open_graph_fetcher.OpenGraphParser,requestTimeout:scala.concurrent.duration.FiniteDuration)(implicitactorSystem:akka.actor.ActorSystem,implicitmaterializer:akka.stream.ActorMaterializer):com.github.tkqubo.akka_open_graph_fetcher.OpenGraphFetcher"></a>
-      <a id="apply(OpenGraphParser,FiniteDuration)(ActorSystem,ActorMaterializer):OpenGraphFetcher"></a>
+      <a id="apply(openGraphParser:com.github.tkqubo.akka_open_graph_fetcher.OpenGraphParser,requestTimeout:scala.concurrent.duration.FiniteDuration,maxRedirectionRetries:Int)(implicitactorSystem:akka.actor.ActorSystem,implicitmaterializer:akka.stream.ActorMaterializer):com.github.tkqubo.akka_open_graph_fetcher.OpenGraphFetcher"></a>
+      <a id="apply(OpenGraphParser,FiniteDuration,Int)(ActorSystem,ActorMaterializer):OpenGraphFetcher"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="openGraphParser">openGraphParser: <a href="OpenGraphParser.html" class="extype" name="com.github.tkqubo.akka_open_graph_fetcher.OpenGraphParser">OpenGraphParser</a> = <span class="symbol"><span class="name"><a href="OpenGraphParser$.html">new OpenGraphParser()</a></span></span></span>, <span name="requestTimeout">requestTimeout: <span class="extype" name="scala.concurrent.duration.FiniteDuration">FiniteDuration</span> = <span class="defval" name='<span class="name"><a href="">OpenGraphFetcher.defaultRequestTimeout</a></span>'>...</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="actorSystem">actorSystem: <span class="extype" name="akka.actor.ActorSystem">ActorSystem</span></span>, <span name="materializer">materializer: <span class="extype" name="akka.stream.ActorMaterializer">ActorMaterializer</span></span>)</span><span class="result">: <a href="OpenGraphFetcher.html" class="extype" name="com.github.tkqubo.akka_open_graph_fetcher.OpenGraphFetcher">OpenGraphFetcher</a></span>
+        <span class="name">apply</span><span class="params">(<span name="openGraphParser">openGraphParser: <a href="OpenGraphParser.html" class="extype" name="com.github.tkqubo.akka_open_graph_fetcher.OpenGraphParser">OpenGraphParser</a> = <span class="symbol"><span class="name"><a href="OpenGraphParser$.html">new OpenGraphParser()</a></span></span></span>, <span name="requestTimeout">requestTimeout: <span class="extype" name="scala.concurrent.duration.FiniteDuration">FiniteDuration</span> = <span class="symbol"><span class="name"><a href="#defaultRequestTimeout:scala.concurrent.duration.FiniteDuration">defaultRequestTimeout</a></span></span></span>, <span name="maxRedirectionRetries">maxRedirectionRetries: <span class="extype" name="scala.Int">Int</span> = <span class="symbol"><span class="name"><a href="#defaultMaxRedirectionRetries:Int">defaultMaxRedirectionRetries</a></span></span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="actorSystem">actorSystem: <span class="extype" name="akka.actor.ActorSystem">ActorSystem</span></span>, <span name="materializer">materializer: <span class="extype" name="akka.stream.ActorMaterializer">ActorMaterializer</span></span>)</span><span class="result">: <a href="OpenGraphFetcher.html" class="extype" name="com.github.tkqubo.akka_open_graph_fetcher.OpenGraphFetcher">OpenGraphFetcher</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#com.github.tkqubo.akka_open_graph_fetcher.OpenGraphFetcher$@apply(openGraphParser:com.github.tkqubo.akka_open_graph_fetcher.OpenGraphParser,requestTimeout:scala.concurrent.duration.FiniteDuration)(implicitactorSystem:akka.actor.ActorSystem,implicitmaterializer:akka.stream.ActorMaterializer):com.github.tkqubo.akka_open_graph_fetcher.OpenGraphFetcher" title="Permalink" target="_top">
+      <a href="../../../../index.html#com.github.tkqubo.akka_open_graph_fetcher.OpenGraphFetcher$@apply(openGraphParser:com.github.tkqubo.akka_open_graph_fetcher.OpenGraphParser,requestTimeout:scala.concurrent.duration.FiniteDuration,maxRedirectionRetries:Int)(implicitactorSystem:akka.actor.ActorSystem,implicitmaterializer:akka.stream.ActorMaterializer):com.github.tkqubo.akka_open_graph_fetcher.OpenGraphFetcher" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -221,6 +221,23 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="com.github.tkqubo.akka_open_graph_fetcher.OpenGraphFetcher#defaultMaxRedirectionRetries" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="defaultMaxRedirectionRetries:Int"></a>
+      <a id="defaultMaxRedirectionRetries:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">defaultMaxRedirectionRetries</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#com.github.tkqubo.akka_open_graph_fetcher.OpenGraphFetcher$@defaultMaxRedirectionRetries:Int" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="com.github.tkqubo.akka_open_graph_fetcher.OpenGraphFetcher#defaultRequestTimeout" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="defaultRequestTimeout:scala.concurrent.duration.FiniteDuration"></a>
       <a id="defaultRequestTimeout:FiniteDuration"></a>
