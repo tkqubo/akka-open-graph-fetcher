@@ -61,6 +61,21 @@ class OpenGraphFetcherTest
         there was one(parser).parse(any, any)(any, any)
       }
 
+      "pass with non-ascii URL" in new Context {
+        // Given
+        val url: String = "http://example.com?日本語でおｋ"
+        val response = HttpResponse(StatusCodes.OK, entity = mock[ResponseEntity])
+        http.singleRequest(any, any, any, any)(any) returns Future.successful(response)
+        val expected: OpenGraph = OpenGraph(url, "title".some, "desc".some, "image".some, None)
+        parser.parse(any, any)(any, any) returns Future.successful(expected)
+
+        // When
+        val actual: OpenGraph = Await.result(target.fetch(url), Duration.Inf)
+
+        // Then
+        actual === expected
+      }
+
       "return error response with malformed url" in new Context {
         // Given
         val url: String = "foo://example.com"

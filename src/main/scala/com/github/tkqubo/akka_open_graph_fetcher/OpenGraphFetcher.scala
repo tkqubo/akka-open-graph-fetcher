@@ -1,5 +1,7 @@
 package com.github.tkqubo.akka_open_graph_fetcher
 
+import java.net.URI
+
 import akka.actor.{ActorSystem, Scheduler}
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.Location
@@ -42,7 +44,8 @@ class OpenGraphFetcher(
         OpenGraph(url, error = Error.maybeFromStatusCode(StatusCodes.BadRequest, Some(ErrorMessage.forInvalidUriScheme())))
       )
     } else {
-      val request = HttpRequest(uri = Uri(url), headers = scala.collection.immutable.Seq(headers.toSeq:_*))
+      val asciiUrl = new URI(url).toASCIIString
+      val request = HttpRequest(uri = Uri(asciiUrl), headers = scala.collection.immutable.Seq(headers.toSeq:_*))
       (fetchSuccess(request) recover recoverFailure(url)) (ec)
     }
 
