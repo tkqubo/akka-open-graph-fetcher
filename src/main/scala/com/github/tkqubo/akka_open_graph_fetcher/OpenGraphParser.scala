@@ -104,7 +104,8 @@ class OpenGraphParser(
 
   implicit protected class DocumentOps(val document: Document) {
     def metaValue(property: String): Option[String] =
-      Option(document.select(s"meta[property=$property]").attr("content")).filter(_.nonEmpty)
+      Option(document.select(s"meta[property=$property]").attr("content")).filter(_.nonEmpty) orElse
+      Option(document.select(s"meta[name=$property]").attr("content")).filter(_.nonEmpty)
   }
 }
 

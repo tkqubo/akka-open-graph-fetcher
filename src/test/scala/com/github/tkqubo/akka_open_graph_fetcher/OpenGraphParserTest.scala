@@ -95,6 +95,21 @@ class OpenGraphParserTest
         actual === OpenGraph(overridingUrl, title = title.some, description = description.some, image.some)
       }
 
+      "parse open graph from name attribute" in new Context {
+        // Given
+        val description = "This is the very first time"
+        val request = buildRequest()
+        val response = buildResponse(<html><head>
+          <meta name="og:description" content={description} />
+        </head></html>)
+
+        // When
+        val actual = Await.result(target.parse(request, response), Duration.Inf)
+
+        // Then
+        actual === OpenGraph(url, description = description.some)
+      }
+
       "still parse failed response" in new Context {
         // Given
         val title = "Hello world"
