@@ -57,10 +57,12 @@ class OpenGraphParser(
 
   private def byteStringToDocument(data: ByteString, response: HttpResponse): Document = {
     val document: Document = Jsoup.parse(data.utf8String)
+    // might be more safe google for example can send
     val maybeCharset: Option[Charset] = (
+      maybeCharsetFromHttpResponseHeader(response) orElse
+      maybeCharsetFromHttpEntity(response) orElse
       maybeCharsetFromDocumentCharsetMetaTag(document) orElse
-      maybeCharsetFromDocumentHttpEquivMetaTag(document) orElse
-      maybeCharsetFromHttpResponseHeader(response)
+      maybeCharsetFromDocumentHttpEquivMetaTag(document)
     ).filter(_ != utf8)
     maybeCharset
       .map(charset => Jsoup.parse(data.decodeString(charset)))
@@ -97,6 +99,12 @@ class OpenGraphParser(
       header <- response.header[`Content-Type`]
       charsetName <- header.contentType.charsetOption.map(_.value)
       charset <- charsetForNameOption(charsetName)
+    } yield charset
+
+  private def maybeCharsetFromHttpEntity(response: HttpResponse): Option[Charset] =
+    for {
+      httpCharset <- response.entity.contentType.charsetOption
+      charset <- charsetForNameOption(httpCharset.value)
     } yield charset
 
   private def charsetForNameOption(charsetName: String): Option[Charset] =
