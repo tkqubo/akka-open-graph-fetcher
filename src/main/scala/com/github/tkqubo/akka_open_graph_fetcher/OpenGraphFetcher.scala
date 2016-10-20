@@ -1,6 +1,6 @@
 package com.github.tkqubo.akka_open_graph_fetcher
 
-import java.net.URI
+import java.net.{URI, URISyntaxException}
 
 import akka.actor.{ActorSystem, Scheduler}
 import akka.http.scaladsl.model._
@@ -44,9 +44,16 @@ class OpenGraphFetcher(
         OpenGraph(url, error = Error.maybeFromStatusCode(StatusCodes.BadRequest, Some(ErrorMessage.forInvalidUriScheme())))
       )
     } else {
-      val asciiUrl = new URI(url).toASCIIString
-      val request = HttpRequest(uri = Uri(asciiUrl), headers = scala.collection.immutable.Seq(headers.toSeq:_*))
-      (fetchSuccess(request) recover recoverFailure(url)) (ec)
+      try {
+        val asciiUrl = new URI(url).toASCIIString
+        val request = HttpRequest(uri = Uri(asciiUrl), headers = scala.collection.immutable.Seq(headers.toSeq:_*))
+        (fetchSuccess(request) recover recoverFailure(url)) (ec)
+      } catch {
+        case e: URISyntaxException =>
+          Future.successful(
+            OpenGraph(url, error = Error.maybeFromStatusCode(StatusCodes.BadRequest, Some(ErrorMessage.forIllegalCharacter(e))))
+          )
+      }
     }
 
   private def fetchSuccess(request: HttpRequest)(implicit ec: ExecutionContext): Future[OpenGraph] =
@@ -96,6 +103,7 @@ object OpenGraphFetcher {
 
   object ErrorMessage {
     def forInvalidUriScheme(): String = "HTTP URI scheme should be either http or https"
+    def forIllegalCharacter(e: URISyntaxException): String = s"""URI "${e.getInput}" has illegal character at ${e.getIndex}"""
     def forRequestTimeout(request: HttpRequest, requestTimeout: FiniteDuration): String = s"Request to ${request.uri} failed after $requestTimeout"
   }
 }

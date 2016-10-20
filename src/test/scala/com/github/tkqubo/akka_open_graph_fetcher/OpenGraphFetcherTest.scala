@@ -1,6 +1,8 @@
 package com.github.tkqubo.akka_open_graph_fetcher
 
 
+import java.net.URISyntaxException
+
 import akka.actor.ActorSystem
 import akka.http.scaladsl.HttpExt
 import akka.http.scaladsl.model._
@@ -10,8 +12,8 @@ import com.miguno.akka.testing.VirtualTime
 import org.specs2.matcher.Scope
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
-import scala.collection.immutable.Seq
 
+import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future, TimeoutException}
@@ -81,6 +83,24 @@ class OpenGraphFetcherTest
         val url: String = "foo://example.com"
         val expected: OpenGraph = OpenGraph(
           url, error = Error.maybeFromStatusCode(StatusCodes.BadRequest, OpenGraphFetcher.ErrorMessage.forInvalidUriScheme().some)
+        )
+
+        // When
+        val actual: OpenGraph = Await.result(target.fetch(url), Duration.Inf)
+
+        // Then
+        actual === expected
+        there was no(http).singleRequest(any, any, any, any)(any)
+        there was no(parser).parse(any, any)(any, any)
+      }
+
+      "return error response with url containing invalid character" in new Context {
+        // Given
+        val url: String = "http://)(*^)(#&()#$&@[]"
+        val index = 7
+        val e = new URISyntaxException(url, "foo", index)
+        val expected: OpenGraph = OpenGraph(
+          url, error = Error.maybeFromStatusCode(StatusCodes.BadRequest, s"""URI "$url" has illegal character at $index""".some)
         )
 
         // When
