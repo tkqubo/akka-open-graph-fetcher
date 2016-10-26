@@ -1,6 +1,7 @@
 package com.github.tkqubo.akka_open_graph_fetcher
 
 import java.nio.charset.Charset
+import java.util
 
 import akka.http.scaladsl.model.HttpEntity.Strict
 import akka.http.scaladsl.model.headers._
@@ -56,18 +57,29 @@ class OpenGraphParser(
     } yield openGraph
 
   private def byteStringToDocument(data: ByteString, response: HttpResponse): Document = {
-    val document: Document = Jsoup.parse(data.utf8String)
-    // might be more safe google for example can send
-    val maybeCharset: Option[Charset] = (
-      maybeCharsetFromHttpResponseHeader(response) orElse
-      maybeCharsetFromHttpEntity(response) orElse
-      maybeCharsetFromDocumentCharsetMetaTag(document) orElse
-      maybeCharsetFromDocumentHttpEquivMetaTag(document)
-    ).filter(_ != utf8)
-    maybeCharset
-      .map(charset => Jsoup.parse(data.decodeString(charset)))
-      .getOrElse(document)
+    val maybeDocumentFromResponse: Option[Document] =
+      maybeDocumentFromCharsetCandidates(data, Seq(
+        maybeCharsetFromHttpResponseHeader(response),
+        maybeCharsetFromHttpEntity(response)
+      ))
+
+    maybeDocumentFromResponse getOrElse {
+      val document: Document = Jsoup.parse(data.utf8String)
+      val maybeDocumentFromBody: Option[Document] =
+        maybeDocumentFromCharsetCandidates(data, Seq(
+          maybeCharsetFromDocumentHttpEquivMetaTag(document),
+          maybeCharsetFromDocumentCharsetMetaTag(document)
+        ))
+      maybeDocumentFromBody getOrElse document
+    }
   }
+
+  private def maybeDocumentFromCharsetCandidates(data: ByteString, charsetCandidates: Seq[Option[Charset]]): Option[Document] =
+    charsetCandidates
+      .flatten
+      .distinct
+      .find(compareBytesWithCharset(data.toByteBuffer.array(), _))
+      .map(charset => Jsoup.parse(data.decodeString(charset)))
 
   protected def documentToOpenGraph(document: Document, request: HttpRequest, response: HttpResponse): OpenGraph =
     OpenGraph(
@@ -77,6 +89,9 @@ class OpenGraphParser(
       image = document.metaValue("og:image"),
       error = Error.maybeFromStatusCode(response.status)
     )
+
+  private def compareBytesWithCharset(bytes: Array[Byte], charset: Charset): Boolean =
+    util.Arrays.equals(bytes, new String(bytes, charset).getBytes(charset))
 
   private def maybeCharsetFromDocumentHttpEquivMetaTag(document: Document): Option[Charset] = {
     for {
@@ -94,12 +109,13 @@ class OpenGraphParser(
   private def maybeCharsetFromDocumentCharsetMetaTag(document: Document): Option[Charset] =
     charsetForNameOption(document.select("meta[charset]").attr("charset"))
 
-  private def maybeCharsetFromHttpResponseHeader(response: HttpResponse): Option[Charset] =
+  private def maybeCharsetFromHttpResponseHeader(response: HttpResponse): Option[Charset] = {
     for {
       header <- response.header[`Content-Type`]
       charsetName <- header.contentType.charsetOption.map(_.value)
       charset <- charsetForNameOption(charsetName)
     } yield charset
+  }
 
   private def maybeCharsetFromHttpEntity(response: HttpResponse): Option[Charset] =
     for {
